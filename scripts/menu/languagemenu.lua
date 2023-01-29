@@ -1,9 +1,10 @@
+---@class LanguageMenu: Object
 local LanguageMenu, super = Class(Object)
 
----@param languages any
+---@param languages Language[]
 ---@param callback function|nil
 function LanguageMenu:init(languages, callback)
-    super:init(self, 0,0, SCREEN_WIDTH,SCREEN_HEIGHT)
+    super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self.callback = callback
     self.languages = languages
@@ -12,18 +13,18 @@ function LanguageMenu:init(languages, callback)
     -- Starts at zero
     self.selection = 0
 
-	self.lang_title = "Choose your language"
-	
+    self.lang_title = "Choose your language"
+
     ------------------------------------------------------------------------------------------------------------
 
     self.font = Assets.getFont("menu")
 
-	self.lang_text = Text(self.lang_title, 330, 30, 300, 200, {style = "GONER"})
-	self.lang_text.x = 330 - Utils.round(self.lang_text.text_width/2)
+    self.lang_text = Text(self.lang_title, 330, 30, 300, 200, { style = "GONER" })
+    self.lang_text.x = 330 - Utils.round(self.lang_text.text_width / 2)
     self:addChild(self.lang_text)
 
-    self.page_text = Text("Page", 330, 440, 300, 200, {style = "GONER"})
-	self.page_text.x = 330 - Utils.round(self.page_text.text_width/2)
+    self.page_text = Text("Page", 330, 440, 300, 200, { style = "GONER" })
+    self.page_text.x = 330 - Utils.round(self.page_text.text_width / 2)
     self:addChild(self.page_text)
 
     self.heart = Sprite("player/heart_menu")
@@ -44,7 +45,7 @@ end
 --------------------------------------------------------------------------------------------------
 
 function LanguageMenu:getPages()
-    return math.floor(#self.languages/self.pageSize) + 1
+    return math.floor(#self.languages / self.pageSize) + 1
 end
 
 function LanguageMenu:pageToIndex(page)
@@ -71,11 +72,12 @@ end
 
 function LanguageMenu:buildLangTexts(elements)
     for i = 1, #elements do
+        ---@type Language
         local lang = elements[i]
 
-        local text = Text(lang.languageName, 120, 82 + ((i - 1) * 32))
-        local sprite = Sprite(lang.languageFlag)
-        sprite:setPosition(text.text_width + 8, Utils.round(text.text_height/2 - 8))
+        local text = Text(lang.name, 120, 82 + ((i - 1) * 32))
+        local sprite = Sprite(lang.flag)
+        sprite:setPosition(text.text_width + 8, Utils.round(text.text_height / 2 - 8))
         text:addChild(sprite)
         self:addChild(text)
 
@@ -84,17 +86,16 @@ function LanguageMenu:buildLangTexts(elements)
 end
 
 function LanguageMenu:updatePage()
-
     self.page_text:setText(self.page .. "/" .. self:getPages())
-    self.page_text.x = 330 - Utils.round(self.page_text.text_width/2)
-    
+    self.page_text.x = 330 - Utils.round(self.page_text.text_width / 2)
+
     self:clearLangTexts()
     self:buildLangTexts(self:getPage(self.page))
 end
 
 function LanguageMenu:moveSoul(amount)
     Assets.playSound("ui_move")
-	self.selection = self.selection + amount
+    self.selection = self.selection + amount
 
     if (self.selection < 0) then
         if (self.page == 1) then
@@ -122,7 +123,7 @@ end
 --------------------------------------------------------------------------------------------------
 
 function LanguageMenu:draw()
-    love.graphics.setColor(0, 0, 0, 1/1.5 * self.time)
+    love.graphics.setColor(0, 0, 0, 1 / 1.5 * self.time)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     super:draw(self)
     love.graphics.setColor(1, 1, 1)
@@ -130,19 +131,19 @@ end
 
 function LanguageMenu:onKeyPressed(key, repeatable)
     if Input.pressed("up", true) then
-		self:moveSoul(-1)
+        self:moveSoul(-1)
     end
-	if Input.pressed("down", true) then
+    if Input.pressed("down", true) then
         self:moveSoul(1)
     end
     if Input.pressed("confirm", true) then
         local lang = self.languages[self.selection + self:pageToIndex(self.page)]
-        
+
         if type(self.callback) == "function" then
             self.callback(lang)
         end
 
-        print("Selected language " .. lang.languageName)
+        print("Selected language " .. lang.name)
 
         Multilanguage.language = lang
         Assets.playSound("ui_select")
